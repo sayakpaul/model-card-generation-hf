@@ -40,7 +40,7 @@ If you run the `generate_model_card.py` as is here, you should see 11 directorie
 
 Here is an example model card generated with the script:
 
-https://huggingface.co/sayakpaul/maxim-s2-enhancement-lol
+https://huggingface.co/google/maxim-s2-enhancement-lol (MAXIM model trained on the LOL dataset for low-light image enhancement)
 
 ## References
 
