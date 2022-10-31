@@ -15,7 +15,7 @@ This repository shows how to generate model cards for a specific family of model
 
 * Prepare the generic text following [these guidelines](https://huggingface.co/course/chapter4/4?fw=pt). The
 text will remain fixed for all the different variants of a particular model family
-(BERT is a model family and BERT-Base is a variant).
+(BERT is a model family and BERT-Base is a variant). For this purpose, prefer using the [utilities](https://huggingface.co/docs/huggingface_hub/how-to-model-cards) from `huggingface_hub`. 
 * Determine the variables that will change in the different model cards. Some
 examples: (pre-)training dataset, model architecture, parameters, performance metrics, etc. 
 
@@ -37,6 +37,10 @@ Modify the `generate_model_card.py` script as per your needs and then run it `py
 
 If you run the `generate_model_card.py` as is here, you should see 11 directories
 (with the `maxim-s` prefix) after successful execution. 
+
+Here is an example model card generated with the script:
+
+https://huggingface.co/sayakpaul/maxim-s2-enhancement-lol
 
 ## References
 
