@@ -46,4 +46,4 @@ If you run the `generate_model_card.py` as is here, you should see 11 directorie
 
 Thanks to Willi Gierke from Google who initially gave me an earlier version of this script.
 I used that to generate TF-Hub documentation for
-[30 different variants of the ConvNeXt model](https://tfhub.dev/sayakpaul/collections/convnext/1).# model-card-generation--
+[30 different variants of the ConvNeXt model](https://tfhub.dev/sayakpaul/collections/convnext/1).
