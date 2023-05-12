@@ -8,77 +8,115 @@ from string import Template
 
 import attr
 
-from mappings import DATASETS
 
 template = Template(
     """---
-license: apache-2.0
-library_name: keras
-language: en
+license: mit
 tags:
-- vision
-- maxim
-- image-to-image
+  - stable-diffusion
+  - stable-diffusion-diffusers
+  - image-to-image
+  - art
+widget:
+  - src: >-
+      $INFERENCE_IMG
+    prompt: $PROMPT
 datasets:
-- $DATASET_METADATA
+- $DATASET
 ---
 
-# MAXIM pre-trained on $DATASET for $TASK 
+# Instruction-tuned Stable Diffusion for $TASK ($VARIANT) 
 
-MAXIM model pre-trained for $TASK. It was introduced in the paper [MAXIM: Multi-Axis MLP for Image Processing](https://arxiv.org/abs/2201.02973) by Zhengzhong Tu, Hossein Talebi, Han Zhang, Feng Yang, Peyman Milanfar, Alan Bovik, Yinxiao Li and first released in [this repository](https://github.com/google-research/maxim). 
+$TRAINING_TEXT
 
-Disclaimer: The team releasing MAXIM did not write a model card for this model so this model card has been written by the Hugging Face team.
+## Pipeline description
 
-## Model description
+Motivation behind this pipeline partly comes from [FLAN](https://huggingface.co/papers/2109.01652) and partly
+comes from [InstructPix2Pix](https://huggingface.co/papers/2211.09800). The main idea is to first create an
+instruction prompted dataset (as described in [our blog](https://hf.co/blog/instruction-tuning-sd)) and then conduct InstructPix2Pix style
+training. The end objective is to make Stable Diffusion better at following specific instructions
+that entail image transformation related operations.
 
-MAXIM introduces a shared MLP-based backbone for different image processing tasks such as image deblurring, deraining, denoising, dehazing, low-light image enhancement, and retouching. The following figure depicts the main components of MAXIM:
+<p align="center">
+<img src="https://huggingface.co/datasets/sayakpaul/sample-datasets/resolve/main/instruction-tuning-sd.png width=600/>
+</p>
 
-![](https://github.com/google-research/maxim/raw/main/maxim/images/overview.png)
+Follow [this post](https://hf.co/blog/instruction-tuning-sd) to know more. 
 
 ## Training procedure and results
 
-The authors didn't release the training code. For more details on how the model was trained, refer to the [original paper](https://arxiv.org/abs/2201.02973). 
+Training was conducted on [$DATASET](https://huggingface.co/datasets/$DATASET) dataset. Refer to
+[this repository](https://github.com/sayakpaul/instruction-tuned-sd) to know more. 
 
-As per the [table](https://github.com/google-research/maxim#results-and-pre-trained-models), the model achieves a PSNR of $PSNR and an SSIM of $SSIM. 
+Here are some results dervied from the pipeline:
+
+(TODO)
 
 ## Intended uses & limitations
 
-You can use the raw model for $TASK tasks. 
-
-The model is [officially released in JAX](https://github.com/google-research/maxim). It was ported to TensorFlow in [this repository](https://github.com/sayakpaul/maxim-tf). 
+You can use the pipeline for performing $TASK.lower() with an input image and an input prompt.
 
 ### How to use
 
 Here is how to use this model:
 
 ```python
-from huggingface_hub import from_pretrained_keras
-from PIL import Image
+import torch
+from diffusers import StableDiffusionInstructPix2PixPipeline
+from diffusers.utils import load_image
 
-import tensorflow as tf
-import numpy as np
-import requests
+model_id = "$MODEL_ID"
+pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+    model_id, torch_dtype=torch.float16, use_auth_token=True
+).to("cuda")
 
-url = "$INPUT_URL"
-image = Image.open(requests.get(url, stream=True).raw)
-image = np.array(image)
-image = tf.convert_to_tensor(image)
-image = tf.image.resize(image, (256, 256))
+image_path = "$INFERENCE_IMG"
+image = load_image(image_path)
 
-model = from_pretrained_keras("$CKPT")
-predictions = model.predict(tf.expand_dims(image, 0))
+image = pipeline("$PROMPT", image=image).images[0]
+image.save("image.png")
 ```
 
-For a more elaborate prediction pipeline, refer to [this Colab Notebook](https://colab.research.google.com/github/sayakpaul/maxim-tf/blob/main/notebooks/inference-dynamic-resize.ipynb). 
+For notes on limitations, misuse, malicious use, out-of-scope use, please refer to the model card
+[here](https://huggingface.co/runwayml/stable-diffusion-v1-5).
 
-### Citation
+## Citation
+
+**FLAN**
 
 ```bibtex
-@article{tu2022maxim,
-  title={MAXIM: Multi-Axis MLP for Image Processing},
-  author={Tu, Zhengzhong and Talebi, Hossein and Zhang, Han and Yang, Feng and Milanfar, Peyman and Bovik, Alan and Li, Yinxiao},
-  journal={CVPR},
-  year={2022},
+@inproceedings{
+    wei2022finetuned,
+    title={Finetuned Language Models are Zero-Shot Learners},
+    author={Jason Wei and Maarten Bosma and Vincent Zhao and Kelvin Guu and Adams Wei Yu and Brian Lester and Nan Du and Andrew M. Dai and Quoc V Le},
+    booktitle={International Conference on Learning Representations},
+    year={2022},
+    url={https://openreview.net/forum?id=gEZrGCozdqR}
+}
+```
+
+**InstructPix2Pix**
+
+```bibtex
+@InProceedings{
+    brooks2022instructpix2pix,
+    author     = {Brooks, Tim and Holynski, Aleksander and Efros, Alexei A.},
+    title      = {InstructPix2Pix: Learning to Follow Image Editing Instructions},
+    booktitle  = {CVPR},
+    year       = {2023},
+}
+```
+
+**Instruction-tuning for Stable Diffusion blog**
+
+```bibtex
+@article{
+  Paul2023instruction-tuning-sd,
+  author = {Paul, Sayak},
+  title = {Instruction-tuning Stable Diffusion with InstructPix2Pix},
+  journal = {Hugging Face Blog},
+  year = {2023},
+  note = {https://huggingface.co/blog/instruction-tuning-sd},
 }
 ```
 """
@@ -87,108 +125,62 @@ For a more elaborate prediction pipeline, refer to [this Colab Notebook](https:/
 
 @attr.s
 class Config:
-    dataset_metadata = attr.ib(type=str)
-    task = attr.ib(type=str)
+    inference_img = attr.ib(type=str)
     dataset = attr.ib(type=str)
-    input_url = attr.ib(type=str)
-    ckpt = attr.ib(type=str)
-    psnr = attr.ib(type=float)
-    ssim = attr.ib(type=float)
+    training_text = attr.ib(type=str)
+    task = attr.ib(type=str)
+    variant = attr.ib(type=float)
+    model_id = attr.ib(type=float)
+    prompt = attr.ib(type=float)
 
     def get_folder_name(self):
-        return self.ckpt.split("/")[-1]
+        return os.path.join(self.task.lower(), self.variant.lower())
+
+SCRATCH_TXT = "This pipeline is an 'instruction-tuned' version of"
+" [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It "
+"was trained using the [InstructPix2Pix methodology](https://huggingface.co/papers/2211.09800)."
+FINETUNING_TXT = "This pipeline is an 'instruction-tuned' version of"
+" [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It "
+"was fine-tuned from the existing [InstructPix2Pix checkpoints](https://huggingface.co/timbrooks/instruct-pix2pix).",
+"Cartoonization",
 
 
 for c in [
     Config(
-        "sidd",
-        "image denoising",
-        DATASETS["sidd"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Denoising/input/0011_23.png",
-        "google/maxim-s3-denoising-sidd",
-        39.96,
-        0.960,
+        "https://hf.co/datasets/diffusers/diffusers-images-docs/resolve/main/mountain.png",
+        "instruction-tuning-sd/cartoonization",
+        SCRATCH_TXT,
+        "Cartoonization",
+        "Scratch",
+        "instruction-tuning-sd/scratch-cartoonizer",
+        "Cartoonize the following image",
+
     ),
     Config(
-        "realblur_r",
-        "image deblurring",
-        DATASETS["realblur_r"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Deblurring/input/1fromGOPR0950.png",
-        "google/maxim-s3-deblurring-realblur-r",
-        39.45,
-        0.962,
+        "https://hf.co/datasets/diffusers/diffusers-images-docs/resolve/main/mountain.png",
+        "instruction-tuning-sd/cartoonization",
+        FINETUNING_TXT,
+        "Fine-tuned",
+        "instruction-tuning-sd/cartoonizer",
+        "Cartoonize the following image",
     ),
     Config(
-        "realblur_j",
-        "image deblurring",
-        DATASETS["realblur_j"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Deblurring/input/1fromGOPR0950.png",
-        "google/maxim-s3-deblurring-realblur-j",
-        32.84,
-        0.935,
+        "https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/derain%20the%20image_1.png",
+        "instruction-tuning-sd/low-level-image-proc",
+        SCRATCH_TXT,
+        "Low-level Image Processing",
+        "Scratch",
+        "instruction-tuning-sd/scratch-low-level-img-proc",
+        "derain the image",
     ),
     Config(
-        "gopro",
-        "image deblurring",
-        DATASETS["gopro"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Deblurring/input/1fromGOPR0950.png",
-        "google/maxim-s3-deblurring-gopro",
-        32.86,
-        0.961,
-    ),
-    Config(
-        "rain13k",
-        "image deraining",
-        DATASETS["rain13k"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Deraining/input/55.png",
-        "google/maxim-s2-deraining-rain13k",
-        33.24,
-        0.933,
-    ),
-    Config(
-        "raindrop",
-        "image deraining",
-        DATASETS["raindrop"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Deraining/input/55.png",
-        "google/maxim-s2-deraining-raindrop",
-        31.87,
-        0.935,
-    ),
-    Config(
-        "sots-indoor",
-        "image dehazing",
-        DATASETS["sots-indoor"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Dehazing/input/1440_10.png",
-        "google/maxim-s2-dehazing-sots-indoor",
-        38.11,
-        0.991,
-    ),
-    Config(
-        "sots-outdoor",
-        "image dehazing",
-        DATASETS["sots-outdoor"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Dehazing/input/0048_0.9_0.2.png",
-        "google/maxim-s2-dehazing-sots-outdoor",
-        34.19,
-        0.985,
-    ),
-    Config(
-        "lol",
-        "image enhancement",
-        DATASETS["lol"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Enhancement/input/748.png",
-        "google/maxim-s2-enhancement-lol",
-        23.43,
-        0.863,
-    ),
-    Config(
-        "fivek",
-        "image retouching",
-        DATASETS["fivek"],
-        "https://github.com/sayakpaul/maxim-tf/raw/main/images/Enhancement/input/748.png",
-        "google/maxim-s2-enhancement-fivek",
-        26.15,
-        0.945,
+        "https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/derain%20the%20image_1.png",
+        "instruction-tuning-sd/low-level-image-proc",
+        FINETUNING_TXT,
+        "Low-level Image Processing",
+        "Fine-tuned",
+        "instruction-tuning-sd/scratch-low-level-img-proc",
+        "derain the image",
     ),
 ]:
     model_folder = c.get_folder_name()
@@ -200,12 +192,12 @@ for c in [
     with open(save_path, "w") as f:
         f.write(
             template.substitute(
+                INFERENCE_IMG=c.inference_img,
                 DATASET=c.dataset,
-                DATASET_METADATA=c.dataset_metadata,
+                TRAINING_TEXT=c.training_text,
                 TASK=c.task,
-                INPUT_URL=c.input_url,
-                CKPT=c.ckpt,
-                PSNR=c.psnr,
-                SSIM=c.ssim,
+                VARIANT=c.variant,
+                MODEL_ID=c.model_id,
+                PROMPT=c.prompt
             )
         )
