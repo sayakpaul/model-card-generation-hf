@@ -15,7 +15,7 @@ datasets:
 
 # Instruction-tuned Stable Diffusion for Cartoonization (Scratch) 
 
-This pipeline is an 'instruction-tuned' version of
+This pipeline is an 'instruction-tuned' version of [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It was trained using the [InstructPix2Pix methodology](https://huggingface.co/papers/2211.09800).
 
 ## Pipeline description
 
@@ -26,7 +26,7 @@ training. The end objective is to make Stable Diffusion better at following spec
 that entail image transformation related operations.
 
 <p align="center">
-<img src="https://huggingface.co/datasets/sayakpaul/sample-datasets/resolve/main/instruction-tuning-sd.png width=600/>
+<img src="https://huggingface.co/datasets/sayakpaul/sample-datasets/resolve/main/instruction-tuning-sd.png" width=600/>
 </p>
 
 Follow [this post](https://hf.co/blog/instruction-tuning-sd) to know more. 

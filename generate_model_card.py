@@ -38,7 +38,7 @@ training. The end objective is to make Stable Diffusion better at following spec
 that entail image transformation related operations.
 
 <p align="center">
-<img src="https://huggingface.co/datasets/sayakpaul/sample-datasets/resolve/main/instruction-tuning-sd.png width=600/>
+<img src="https://huggingface.co/datasets/sayakpaul/sample-datasets/resolve/main/instruction-tuning-sd.png" width=600/>
 </p>
 
 Follow [this post](https://hf.co/blog/instruction-tuning-sd) to know more. 
@@ -136,13 +136,8 @@ class Config:
     def get_folder_name(self):
         return os.path.join(self.task.lower(), self.variant.lower())
 
-SCRATCH_TXT = "This pipeline is an 'instruction-tuned' version of"
-" [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It "
-"was trained using the [InstructPix2Pix methodology](https://huggingface.co/papers/2211.09800)."
-FINETUNING_TXT = "This pipeline is an 'instruction-tuned' version of"
-" [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It "
-"was fine-tuned from the existing [InstructPix2Pix checkpoints](https://huggingface.co/timbrooks/instruct-pix2pix).",
-"Cartoonization",
+SCRATCH_TXT = "This pipeline is an 'instruction-tuned' version of [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It was trained using the [InstructPix2Pix methodology](https://huggingface.co/papers/2211.09800)."
+FINETUNING_TXT = "This pipeline is an 'instruction-tuned' version of [Stable Diffusion (v1.5)](https://huggingface.co/runwayml/stable-diffusion-v1-5). It was fine-tuned from the existing [InstructPix2Pix checkpoints](https://huggingface.co/timbrooks/instruct-pix2pix).",
 
 
 for c in [
