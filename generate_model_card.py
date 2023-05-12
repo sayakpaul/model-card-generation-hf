@@ -160,6 +160,7 @@ for c in [
         "https://hf.co/datasets/diffusers/diffusers-images-docs/resolve/main/mountain.png",
         "instruction-tuning-sd/cartoonization",
         FINETUNING_TXT,
+        "Cartoonization",
         "Fine-tuned",
         "instruction-tuning-sd/cartoonizer",
         "Cartoonize the following image",
